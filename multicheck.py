@@ -30,10 +30,9 @@ def fetch_attributes():
     return response.json()
 
 tipo_mapeo = {
-    "text": "text",
+    "string": "text",
     "list": "list",
     "number": "number",
-    "number_unit": "number_unit",
     "boolean": "boolean",
     "grid_row_id": "grid_row_id"
 }
