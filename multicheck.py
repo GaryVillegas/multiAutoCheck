@@ -33,6 +33,8 @@ tipo_mapeo = {
     "string": "text",
     "list": "list",
     "number": "number",
+    "number_unit": "number_unit",
+    "grid_id": "grid_id",
     "boolean": "boolean",
     "grid_row_id": "grid_row_id"
 }
@@ -44,8 +46,8 @@ def insert_data(attributes):
             print("Conexión exitosa a la base de datos")
         cursor = connection.cursor()
         for attribute in attributes:
-            tipo_original = attribute.get("tipo")
-            tipo = tipo_mapeo.get(tipo_original, "text")
+            tipo_original = attribute.get("value_type")
+            tipo = tipo_mapeo.get(tipo_original)
             cursor.execute(
                 "INSERT INTO attribute (name, category_id, meli_id, tipo, created_at, update_at) VALUES (%s, %s, %s, %s, %s, %s)",
                 (attribute["name"], CATEGORY_ID, attribute["id"], tipo, datetime.datetime.now(), datetime.datetime.now())
