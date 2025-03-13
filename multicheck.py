@@ -27,11 +27,22 @@ def fetch_attributes():
         return None
     return response.json()
 
+tipo_mapeo = {
+    "text": "text",
+    "list": "list",
+    "number": "number",
+    "number_unit": "number_unit",
+    "boolean": "boolean",
+    "grid_row_id": "grid_row_id"
+}
+
 def insert_data(attributes):
     connection = mysql.connector.connect(**db_config)
+    if(connection):
+        print("Conexión exitosa a la base de datos.")
     cursor = connection.cursor()
     for attribute in attributes:
-        tipo = "text" if isinstance(attribute.get("tipo"), str) else attribute.get("tipo")
+        tipo = attribute.get("tipo")
         cursor.execute(
             "INSERT INTO attribute (name, category_id, meli_id, tipo, created_at, update_at) VALUES (%s, %s, %s, %s, %s, %s)",
             (attribute["name"], CATEGORY_ID, attribute["id"], tipo, datetime.datetime.now(), datetime.datetime.now())
