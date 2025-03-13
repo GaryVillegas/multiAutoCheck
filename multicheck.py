@@ -21,9 +21,11 @@ CATEGORY_ID = input('inserte el id de su categoria: ')
 API_URL = f"https://api.mercadolibre.com/categories/{CATEGORY_ID}/attributes"
 
 def fetch_attributes():
-    response = requests.get(API_URL)
-    if response.status_code != 200:
-        print("Error al obtener los atributos")
+    try:
+        response = requests.get(API_URL)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        print(f"Error al obtener los atributos: {e}")
         return None
     return response.json()
 
@@ -37,30 +39,36 @@ tipo_mapeo = {
 }
 
 def insert_data(attributes):
-    connection = mysql.connector.connect(**db_config)
-    if(connection):
-        print("Conexión exitosa a la base de datos.")
-    cursor = connection.cursor()
-    for attribute in attributes:
-        tipo = attribute.get("tipo")
-        cursor.execute(
-            "INSERT INTO attribute (name, category_id, meli_id, tipo, created_at, update_at) VALUES (%s, %s, %s, %s, %s, %s)",
-            (attribute["name"], CATEGORY_ID, attribute["id"], tipo, datetime.datetime.now(), datetime.datetime.now())
-        )
-        
-        values = attribute.get("values", [])
-        for value in values:
-            cursor.execute("SELECT id FROM attribute WHERE meli_id = %s", (attribute["id"],))
-            attribute_id = cursor.fetchone()[0]
+    try:
+        connection = mysql.connector.connect(**db_config)
+        if(connection.is_connected()):
+            print("Conexión exitosa a la base de datos")
+        cursor = connection.cursor()
+        for attribute in attributes:
+            tipo_original = attribute.get("tipo")
+            tipo = tipo_mapeo.get(tipo_original, "text")
             cursor.execute(
-                "INSERT INTO attribute_values (attribute_id, meli_value_id, name) VALUES (%s, %s, %s)",
-                (attribute_id, value["id"], value["name"])
+                "INSERT INTO attribute (name, category_id, meli_id, tipo, created_at, update_at) VALUES (%s, %s, %s, %s, %s, %s)",
+                (attribute["name"], CATEGORY_ID, attribute["id"], tipo, datetime.datetime.now(), datetime.datetime.now())
             )
-    
-    connection.commit()
-    cursor.close()
-    connection.close()
-    print("Datos insertados correctamente.")
+            
+            values = attribute.get("values", [])
+            for value in values:
+                cursor.execute("SELECT id FROM attribute WHERE meli_id = %s", (attribute["id"],))
+                attribute_id = cursor.fetchone()[0]
+                cursor.fetchall()
+                cursor.execute(
+                    "INSERT INTO attribute_values (attribute_id, meli_value_id, name) VALUES (%s, %s, %s)",
+                    (attribute_id, value["id"], value["name"])
+                )
+        
+        connection.commit()
+    except mysql.connector.Error as err:
+        print(f"Error al insertar datos: {err}")
+    finally:
+        cursor.close()
+        connection.close()
+        print("Datos insertados correctamente.")
 
 data = fetch_attributes()
 if data:
