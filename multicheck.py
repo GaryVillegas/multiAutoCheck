@@ -33,16 +33,16 @@ def insert_data(attributes):
     for attribute in attributes:
         tipo = "text" if isinstance(attribute.get("tipo"), str) else attribute.get("tipo")
         cursor.execute(
-            "INSERT INTO test_attribute (name, category_id, meli_id, tipo, created_at, update_at) VALUES (%s, %s, %s, %s, %s, %s)",
+            "INSERT INTO attribute (name, category_id, meli_id, tipo, created_at, update_at) VALUES (%s, %s, %s, %s, %s, %s)",
             (attribute["name"], CATEGORY_ID, attribute["id"], tipo, datetime.datetime.now(), datetime.datetime.now())
         )
         
         values = attribute.get("values", [])
         for value in values:
-            cursor.execute("SELECT id FROM test_attribute WHERE meli_id = %s", (attribute["id"],))
+            cursor.execute("SELECT id FROM attribute WHERE meli_id = %s", (attribute["id"],))
             attribute_id = cursor.fetchone()[0]
             cursor.execute(
-                "INSERT INTO test_attribute_values (attribute_id, meli_value_id, name) VALUES (%s, %s, %s)",
+                "INSERT INTO attribute_values (attribute_id, meli_value_id, name) VALUES (%s, %s, %s)",
                 (attribute_id, value["id"], value["name"])
             )
     
