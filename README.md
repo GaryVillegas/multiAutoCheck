@@ -82,4 +82,4 @@ Luego, abre un Pull Request en GitHub.
 
 ## 📝 Licencia
 
-Este proyecto está bajo la licencia [Nombre de la Licencia].
+Este proyecto está bajo la licencia Sin licencia.
