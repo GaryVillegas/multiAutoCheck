@@ -1,6 +1,6 @@
 # Proyecto multiAutoCheck
 
-Este proyecto permite [breve descripción del proyecto]. A continuación, se detallan los pasos para la instalación y configuración del entorno.
+Este proyecto permite se busca automatizar un proceso de gestion de base de datos. A continuación, se detallan los pasos para la instalación y configuración del entorno.
 
 ## 📌 Requisitos
 
