@@ -49,13 +49,13 @@ def insert_data(attributes):
             tipo_original = attribute.get("value_type")
             tipo = tipo_mapeo.get(tipo_original)
             cursor.execute(
-                "INSERT INTO attribute (name, category_id, meli_id, tipo, created_at, update_at) VALUES (%s, %s, %s, %s, %s, %s)",
+                "INSERT INTO attributes (nombre, categoria_id, meli_id, tipo, created_at, update_at) VALUES (%s, %s, %s, %s, %s, %s)",
                 (attribute["name"], CATEGORY_ID, attribute["id"], tipo, datetime.datetime.now(), datetime.datetime.now())
             )
             
             values = attribute.get("values", [])
             for value in values:
-                cursor.execute("SELECT id FROM attribute WHERE meli_id = %s", (attribute["id"],))
+                cursor.execute("SELECT id FROM attributes WHERE meli_id = %s", (attribute["id"],))
                 attribute_id = cursor.fetchone()[0]
                 cursor.fetchall()
                 cursor.execute(
