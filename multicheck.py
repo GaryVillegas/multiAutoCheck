@@ -26,10 +26,10 @@ def fetch_attributes():
     try:
         response = requests.get(API_URL)
         response.raise_for_status()
+        return response.json()
     except requests.RequestException as e:
         print(f"Error al obtener los atributos: {e}")
         return None
-    return response.json()
 
 tipo_mapeo = {
     "string": "text",
@@ -54,31 +54,44 @@ def insert_data(attributes):
         for attribute in attributes:
             tipo_original = attribute.get("value_type")
             tipo = tipo_mapeo.get(tipo_original)
-            cursor.execute(
-                "INSERT INTO attributes (nombre, categoria_id, meli_id, tipo, created_at, updated_at) VALUES (%s, %s, %s, %s, %s, %s)",
-                (attribute["name"], CATEGORY_ID, attribute["id"], tipo, datetime.datetime.now(), datetime.datetime.now())
-            )
-            
-            values = attribute.get("values", [])
-            for value in values:
-                cursor.execute("SELECT id FROM attributes WHERE meli_id = %s", (attribute["id"],))
-                attribute_id = cursor.fetchone()[0]
-                cursor.fetchall()
-                cursor.execute(
-                    "INSERT INTO attribute_values (attribute_id, meli_value_id, nombre) VALUES (%s, %s, %s)",
-                    (attribute_id, value["id"], value["name"])
-                )
+            print(f"Procesando atributo: {attribute.get('id')} - {attribute.get('name')}")
 
+            try:
+                cursor.execute(
+                    "INSERT INTO attributes (nombre, categoria_id, meli_id, tipo, created_at, updated_at) VALUES (%s, %s, %s, %s, %s, %s)",
+                    (attribute["name"], CATEGORY_ID, attribute["id"], tipo, datetime.datetime.now(), datetime.datetime.now())
+                )
+                attribute_db_id = cursor.lastrowid
+
+                values = attribute.get("values", [])
+                print(f"  - Insertando {len(values)} valores para {attribute.get('id')}")
+
+                for value in values:
+                    try:
+                        cursor.execute(
+                            "INSERT INTO attribute_values (attribute_id, meli_value_id, nombre) VALUES (%s, %s, %s)",
+                            (attribute_db_id, value["id"], value["name"])
+                        )
+                    except mysql.connector.Error as err:
+                        print(f"  - Error al insertar valor {value.get('id')}: {err}")
+            except mysql.connector.Error as err:
+                print(f"Error al insertar atributo {attribute.get('id')}: {err}")
             progress_bar.update(1)
+
         connection.commit()
     except mysql.connector.Error as err:
         print(f"Error al insertar datos: {err}")
     finally:
-        cursor.close()
-        connection.close()
+        if connection.is_connected():
+            cursor.close()
+            connection.close()
         progress_bar.close()
-        print("Datos insertados correctamente.")
+        print("Proceso completado.")
 
 data = fetch_attributes()
 if data:
+    # Verificar la cantidad total de atributos
+    print(f"Total de atributos obtenidos: {len(data)}")
     insert_data(data)
+else:
+    print("No se pudieron obtener datos de la API.")
