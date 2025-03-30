@@ -44,8 +44,6 @@ tipo_mapeo = {
 def insert_data(attributes):
     try:
         connection = mysql.connector.connect(**db_config)
-        if(connection.is_connected()):
-            print(f"Conexión exitosa a la base de datos: {db_config['database']}")
         cursor = connection.cursor()
 
         total_attributes = len(attributes)
@@ -91,6 +89,12 @@ def insert_data(attributes):
 data = fetch_attributes()
 if data:
     # Verificar la cantidad total de atributos
+    print(f"Conexión exitosa a la base de datos: {db_config['database']}")
+    print("¿La base de datos es correcta?")
+    select = input("¿Desea continuar? (s/n): ")
+    if select.lower() != 's':
+        print("Proceso cancelado por el usuario.")
+        exit()
     print(f"Total de atributos obtenidos: {len(data)}")
     insert_data(data)
 else:

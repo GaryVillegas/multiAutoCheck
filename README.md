@@ -1,6 +1,6 @@
 # Proyecto multiAutoCheck
 
-Este proyecto permite se busca automatizar un proceso de gestion de base de datos. A continuación, se detallan los pasos para la instalación y configuración del entorno.
+Este proyecto permite se busca automatizar un proceso de gestión de base de datos. A continuación, se detallan los pasos para la instalación y configuración del entorno.
 
 ## 📌 Requisitos
 
@@ -61,11 +61,20 @@ DB_NAME=tu_base_de_datos
 python multicheck.py
 ```
 
-## 📜 Uso
+## 📝 Uso
 
 1. Ejecuta el script y proporciona el ID de la categoría cuando se solicite.
 2. El programa obtendrá los atributos desde la API de MercadoLibre y los almacenará en la base de datos MySQL.
 3. Verifica en tu base de datos que los datos se hayan insertado correctamente.
+4. Se ha agregado una opción para verificar si la base de datos es correcta antes de continuar con el proceso:
+
+```python
+print("¿La base de datos es correcta?")
+select = input("¿Desea continuar? (s/n): ")
+if select.lower() != 's':
+    print("Proceso cancelado por el usuario.")
+    exit()
+```
 
 ## 🛠️ Desarrollo
 
